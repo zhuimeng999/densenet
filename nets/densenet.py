@@ -64,6 +64,59 @@ def densenet(images, num_classes=1001, is_training=False,
             ##########################
             # Put your code here.
             ##########################
+            net = slim.conv2d(images, 2*growth, [7, 7], stride=2, scope='Conv1')
+            end_points['Conv1']=net
+            net = slim.max_pool2d(net, [3, 3], stride=2, scope='pool1')
+            end_points['pool1'] = net
+            net = block(net, layers, growth, scope='block1')
+            end_points['block1'] = net
+            net = slim.conv2d(net, reduce_dim(net), [1, 1], stride=1, scope='conv2d1')
+            end_points['conv2d1'] = net
+            net = slim.batch_norm(net, scope='bn1')
+            end_points['bn1'] = net
+            net = slim.conv2d(net, growth, [1, 1], stride=1, scope='conv2d2')
+            end_points['conv2d2'] = net
+            net = slim.avg_pool2d(net, [2, 2], stride=2, scope='pool2')
+            end_points['pool2'] = net
+
+            net = block(net, layers, growth, scope='block2')
+            end_points['block2'] = net
+            net = slim.conv2d(net, reduce_dim(net), [1, 1], stride=1, scope='conv2d3')
+            end_points['con2d3'] = net
+
+            net = slim.batch_norm(net, scope='bn2')
+            end_points['bn2'] = net
+            net = slim.conv2d(net, growth, [1, 1], stride=1, scope='trans2_conv')
+            end_points['trans2_conv'] = net
+            net = slim.avg_pool2d(net, [2, 2], stride=2, scope='trans2_avgPool')
+            end_points['trans2_avgPool'] = net
+
+            net = block(net, layers, growth, scope='block3')
+            end_points['block3'] = net
+
+            net = slim.conv2d(net, reduce_dim(net), [1, 1], stride=1, scope='Compression_3')
+            end_points['Compression_3'] = net
+
+            net = slim.batch_norm(net, scope='trans3_bn')
+            end_points['trans3_bn'] = net
+            net = slim.conv2d(net, growth, [1, 1], stride=1, scope='trans3_conv')
+            end_points['trans3_conv'] = net
+            net = slim.avg_pool2d(net, [2, 2], stride=2, scope='trans3_avgPool')
+            end_points['trans3_avgPool'] = net
+
+            net = block(net, layers, growth, scope='block4')
+            end_points['block4'] = net
+
+            net = tf.reduce_mean(net, [1, 2], keep_dims=True, name='global_average_pooling')
+            end_points['global_average_pooling'] = net
+            net = slim.flatten(net)
+            end_points['Flatten'] = net
+
+            net = slim.fully_connected(net, num_classes, scope='logits')
+            end_points['logits'] = net
+            #softmax
+            net =tf.nn.softmax(net, name='Predictions')
+            end_points['Predictions'] = net
 
     return logits, end_points
 
