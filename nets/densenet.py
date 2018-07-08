@@ -69,25 +69,25 @@ def densenet(images, num_classes=1001, is_training=False,
             net = slim.max_pool2d(net, [3, 3], stride=2, scope='pool1')
             end_points['pool1'] = net
             
-            net = block(net, layers, growth, scope='block1')
+            net = block(net, 6, growth, scope='block1')
             end_points['block1'] = net
             net = bn_act_conv_drp(net,  reduce_dim(net), [1, 1], scope = 'transition_pool' )
             net = slim.avg_pool2d(net, [2, 2], stride=2, scope='pool2')
             end_points['pool2'] = net
 
-            net = block(net, layers, growth, scope='block2')
+            net = block(net, 6, growth, scope='block2')
             end_points['block2'] = net
             net = bn_act_conv_drp(net,  reduce_dim(net), [1, 1], scope = 'transition_pool' )
             net = slim.avg_pool2d(net, [2, 2], stride=2, scope='trans2_avgPool')
             end_points['trans2_avgPool'] = net
 
-            net = block(net, layers, growth, scope='block3')
+            net = block(net, 6, growth, scope='block3')
             end_points['block3'] = net
             net = bn_act_conv_drp(net,  reduce_dim(net), [1, 1], scope = 'transition_pool' )
             net = slim.avg_pool2d(net, [2, 2], stride=2, scope='trans3_avgPool')
             end_points['trans3_avgPool'] = net
 
-            net = block(net, layers, growth, scope='block4')
+            net = block(net, 6, growth, scope='block4')
             end_points['block4'] = net
             net = tf.reduce_mean(net, [1, 2], keep_dims=True, name='global_average_pooling')
             end_points['global_average_pooling'] = net
